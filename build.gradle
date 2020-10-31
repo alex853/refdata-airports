@@ -1,0 +1,45 @@
+plugins {
+    id 'java'
+}
+
+group = 'net.simforge'
+version = repositoryVersion
+
+sourceCompatibility = '1.8'
+targetCompatibility = '1.8'
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+    maven {
+        url 'https://mymavenrepo.com/repo/9k6aQjU4o2RPUv5zfolv/' // simforge repo read url
+    }
+}
+
+dependencies {
+    implementation 'org.junit.jupiter:junit-jupiter:5.4.2'
+    compile group: 'net.simforge', name: 'simforge-commons', version: '1.0.5'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+/*publishing {
+    repositories {
+        maven {
+            url System.getenv('SIMFORGE_REPO_WRITE_URL')
+        }
+    }
+
+    publications {
+        maven(MavenPublication) {
+            groupId = 'net.simforge'
+            artifactId = 'refdata-airports'
+            version = repositoryVersion
+
+            from components.java
+            artifact sourcesJar
+        }
+    }
+}*/
