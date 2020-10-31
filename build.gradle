@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+    id 'maven-publish'
 }
 
 group = 'net.simforge'
@@ -25,7 +26,12 @@ test {
     useJUnitPlatform()
 }
 
-/*publishing {
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+
+publishing {
     repositories {
         maven {
             url System.getenv('SIMFORGE_REPO_WRITE_URL')
@@ -39,7 +45,20 @@ test {
             version = repositoryVersion
 
             from components.java
-            artifact sourcesJar
+
+            pom {
+                name = 'net.simforge/refdata-airport library'
+                description = 'Airports Reference Library'
+                url = 'http://simforge.net'
+
+                developers {
+                    developer {
+                        id = 'alex853'
+                        name = 'Alexey Kornev'
+                        email = '2alexeykornev@gmail.com'
+                    }
+                }
+            }
         }
     }
-}*/
+}
