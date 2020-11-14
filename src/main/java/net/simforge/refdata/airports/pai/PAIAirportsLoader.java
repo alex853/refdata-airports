@@ -21,7 +21,7 @@ public class PAIAirportsLoader {
             try {
                 StringTokenizer st2 = new StringTokenizer(nextToken, ",");
 
-                String icao = st2.nextToken();
+                String icao = st2.nextToken().trim();
                 String latStr = st2.nextToken();
                 String lonStr = st2.nextToken();
                 String altStr = st2.nextToken();
