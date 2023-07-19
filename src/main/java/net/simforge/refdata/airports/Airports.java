@@ -7,10 +7,10 @@ import java.util.*;
 
 public class Airports {
 
-    private Collection<Airport> airports = new LinkedList<>();
+    private final Collection<Airport> airports = new LinkedList<>();
 
     @SuppressWarnings("unchecked")
-    private List<Airport>[][] gridLL9 = (List<Airport>[][]) new List[360][180];
+    private final List<Airport>[][] gridLL9 = (List<Airport>[][]) new List[360][180];
 
     public void addAirport(Airport airport) {
         airports.add(airport);
@@ -28,6 +28,10 @@ public class Airports {
     }
 
     public Airport findNearest(Geo.Coords coords) {
+        return findNearest(coords, DistanceType.GeoDistance);
+    }
+
+    public Airport findNearest(Geo.Coords coords, DistanceType distanceType) {
         double lat = coords.getLat();
         double lon = coords.getLon();
 
@@ -40,7 +44,7 @@ public class Airports {
         if (airports == null)
             return null;
         else
-            return findNearest(coords, airports);
+            return findNearest(coords, airports, distanceType);
     }
 
     public Airport findWithinBoundary(Geo.Coords coords) {
@@ -50,7 +54,6 @@ public class Airports {
         int latIndex = getLatIndex(lat);
         int lonIndex = getLonIndex(lon);
 
-        //noinspection unchecked
         List<Airport> airports = gridLL9[lonIndex][latIndex];
 
         if (airports == null)
@@ -59,13 +62,13 @@ public class Airports {
             return findWithinBoundary(coords, airports);
     }
 
-    private Airport findNearest(Geo.Coords coords, Collection<Airport> airports) {
+    private Airport findNearest(Geo.Coords coords, Collection<Airport> airports, DistanceType distanceType) {
         double minDistance = Double.MAX_VALUE;
         Airport minDistanceAirport = null;
 
         for (Airport airport : airports) {
-            double distance = Geo.distance(coords, airport.getCoords());
-            if(distance < minDistance) {
+            double distance = Util.distance(coords, airport.getCoords(), distanceType);
+            if (distance < minDistance) {
                 minDistance = distance;
                 minDistanceAirport = airport;
             }
