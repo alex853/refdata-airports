@@ -4,6 +4,7 @@ import net.simforge.commons.misc.Geo;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Airports {
 
@@ -12,7 +13,7 @@ public class Airports {
     @SuppressWarnings("unchecked")
     private final List<Airport>[][] gridLL9 = (List<Airport>[][]) new List[360][180];
 
-    public void addAirport(Airport airport) {
+    void addAirport(Airport airport) {
         airports.add(airport);
 
         putToGridLL9(airport);
@@ -60,6 +61,12 @@ public class Airports {
             return null;
         else
             return findWithinBoundary(coords, airports);
+    }
+
+    public List<Airport> findAllWithinRadius(Geo.Coords coords, double radius) {
+        return airports.stream()
+                .filter(airport -> Geo.distance(coords, airport.getCoords()) < radius)
+                .collect(Collectors.toList());
     }
 
     private Airport findNearest(Geo.Coords coords, Collection<Airport> airports, DistanceType distanceType) {
