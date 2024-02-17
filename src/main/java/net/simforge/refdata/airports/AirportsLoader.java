@@ -1,6 +1,8 @@
 package net.simforge.refdata.airports;
 
 import net.simforge.commons.misc.Geo;
+import net.simforge.refdata.airports.fse.FSEAirport;
+import net.simforge.refdata.airports.fse.FSEAirports;
 import net.simforge.refdata.airports.pai.PAIAirport;
 import net.simforge.refdata.airports.pai.PAIAirports;
 import net.simforge.refdata.airports.pai.PAIAirportsLoader;
@@ -8,40 +10,42 @@ import net.simforge.refdata.airports.pai.PAIAirportsLoader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
+import java.util.Optional;
 import java.util.Properties;
 
-public class AirportsLoader {
-    public static Airports load() throws IOException {
-        Airports airports = new Airports();
+class AirportsLoader {
+    static Airports load() throws IOException {
+        final Airports airports = new Airports();
 
-        PAIAirports paiAirports = PAIAirportsLoader.load();
-        Collection<PAIAirport> paiAirportsCollection = paiAirports.getAirports();
+        final PAIAirports paiAirports = PAIAirportsLoader.load();
+        final FSEAirports fseAirports = FSEAirports.get();
+        final Collection<PAIAirport> paiAirportsCollection = paiAirports.getAirports();
 
         for (PAIAirport paiAirport : paiAirportsCollection) {
-            AirportBuilder builder = new AirportBuilder();
+            final Optional<FSEAirport> fseAirport = fseAirports.findByIcao(paiAirport.getIcao());
 
-            builder.setIcao(paiAirport.getIcao());
-            builder.setCoords(new Geo.Coords(paiAirport.getLatitude(), paiAirport.getLongitude()));
-            builder.setElevation(paiAirport.getAltitude());
+            final Geo.Coords coords = fseAirport.isPresent()
+                    ? fseAirport.get().getCoords()
+                    : Geo.coords(paiAirport.getLatitude(), paiAirport.getLongitude());
 
-            String resourceName = "/boundaries/%s.properties";
-            resourceName = resourceName.replace("%s", paiAirport.getIcao());
-            InputStream resourceInputStream = PAIAirportsLoader.class.getResourceAsStream(resourceName);
+            final Airport.Builder builder = Airport.builder()
+                    .withIcao(paiAirport.getIcao())
+                    .withCoords(coords)
+                    .withElevation(paiAirport.getAltitude());
+
+            final String resourceNameTemplate = "/boundaries/%s.properties";
+            final String resourceName = resourceNameTemplate.replace("%s", paiAirport.getIcao());
+            final InputStream resourceInputStream = Airports.class.getResourceAsStream(resourceName);
 
             if (resourceInputStream != null) {
-                Properties properties = new Properties();
+                final Properties properties = new Properties();
                 properties.load(resourceInputStream);
 
-                String type = properties.getProperty("type");
-                String data = properties.getProperty("data");
-
-                builder.setBoundaryType(BoundaryType.valueOf(type));
-                builder.setBoundaryData(data);
+                builder.withBoundaryType(BoundaryType.valueOf(properties.getProperty("type")))
+                        .withBoundaryData(properties.getProperty("data"));
             }
 
-            Airport airport = builder.create();
-
-            airports.addAirport(airport);
+            airports.addAirport(builder.build());
         }
 
         return airports;

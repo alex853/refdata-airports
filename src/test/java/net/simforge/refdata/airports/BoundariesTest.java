@@ -9,21 +9,21 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class BoundariesTest {
 
-    public static final Geo.Coords NORTHMOST_POINT = new Geo.Coords(35.805174, 140.378119);
+    public static final Geo.Coords NORTHMOST_POINT = Geo.coords(35.805174, 140.378119);
 
     @Test
     public void testRJAA() {
-        AirportBuilder builder = new AirportBuilder();
+        final Airport rjaaWithDefaultType = Airport.builder()
+                .withIcao("RJAA")
+                .withCoords(Geo.coords(35.746833, 140.385167))
+                .build();
 
-        builder.setIcao("RJAA");
-        builder.setCoords(new Geo.Coords(35.746833, 140.385167));
-
-        Airport rjaaWithDefaultType = builder.create();
-
-        builder.setBoundaryType(BoundaryType.Circles);
-        builder.setBoundaryData("35.775667,140.384253,2.5");
-
-        Airport rjaaWithCirclesType = builder.create();
+        final Airport rjaaWithCirclesType = Airport.builder()
+                .withIcao("RJAA")
+                .withCoords(Geo.coords(35.746833, 140.385167))
+                .withBoundaryType(BoundaryType.Circles)
+                .withBoundaryData("35.775667,140.384253,2.5")
+                .build();
 
         assertFalse(rjaaWithDefaultType.isWithinBoundary(NORTHMOST_POINT));
         assertTrue(rjaaWithCirclesType.isWithinBoundary(NORTHMOST_POINT));
@@ -31,8 +31,8 @@ public class BoundariesTest {
 
     @Test
     public void testRJAAfromLoader() throws IOException {
-        Airports airports = AirportsLoader.load();
-        Airport rjaa = airports.getByIcao("RJAA");
+        final Airports airports = AirportsLoader.load();
+        final Airport rjaa = airports.getByIcao("RJAA");
         assertNotNull(rjaa);
         assertTrue(rjaa.isWithinBoundary(NORTHMOST_POINT));
     }

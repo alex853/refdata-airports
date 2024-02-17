@@ -6,19 +6,13 @@ public class Airport {
     private String icao;
     private Geo.Coords coords;
     private int elevation;
-    private BoundaryType boundaryType;
+    private BoundaryType boundaryType = BoundaryType.Default;
     private String boundaryData;
 
     private Geo.Coords[] circlesBoundaryCoords;
     private double[] circlesBoundaryRadiuses;
 
-    Airport(String icao, Geo.Coords coords, int elevation, BoundaryType boundaryType, String boundaryData) {
-        this.icao = icao;
-        this.coords = coords;
-        this.elevation = elevation;
-        this.boundaryType = boundaryType != null ? boundaryType : BoundaryType.Default;
-        this.boundaryData = boundaryData;
-    }
+    private Airport() {}
 
     public String getIcao() {
         return icao;
@@ -90,6 +84,45 @@ public class Airport {
             } catch (Exception e) {
                 throw new IllegalStateException("Unable to parse '" + line + "' line as Circles boundary data in " + icao + " airport", e);
             }
+        }
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static class Builder {
+        private final Airport delegate = new Airport();
+
+        private Builder() {}
+
+        public Builder withIcao(final String icao) {
+            delegate.icao = icao;
+            return this;
+        }
+
+        public Builder withCoords(final Geo.Coords coords) {
+            delegate.coords = coords;
+            return this;
+        }
+
+        public Builder withElevation(final int elevation) {
+            delegate.elevation = elevation;
+            return this;
+        }
+
+        public Builder withBoundaryType(final BoundaryType boundaryType) {
+            delegate.boundaryType = boundaryType != null ? boundaryType : BoundaryType.Default;
+            return this;
+        }
+
+        public Builder withBoundaryData(final String boundaryData) {
+            delegate.boundaryData = boundaryData;
+            return this;
+        }
+
+        public Airport build() {
+            return delegate;
         }
     }
 }
