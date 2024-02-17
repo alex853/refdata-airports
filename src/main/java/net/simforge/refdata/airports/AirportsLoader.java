@@ -33,6 +33,8 @@ class AirportsLoader {
                     .withCoords(coords)
                     .withElevation(paiAirport.getAltitude());
 
+            fseAirport.ifPresent(airport -> builder.withRunwaySize(airport.getSize()));
+
             final String resourceNameTemplate = "/boundaries/%s.properties";
             final String resourceName = resourceNameTemplate.replace("%s", paiAirport.getIcao());
             final InputStream resourceInputStream = Airports.class.getResourceAsStream(resourceName);

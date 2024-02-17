@@ -6,6 +6,10 @@ public class Airport {
     private String icao;
     private Geo.Coords coords;
     private int elevation;
+
+    private int runwaySize = 3000;
+    private float defaultBoundaryRadius = calcDefaultBoundaryRadius(runwaySize);
+
     private BoundaryType boundaryType = BoundaryType.Default;
     private String boundaryData;
 
@@ -26,6 +30,14 @@ public class Airport {
         return elevation;
     }
 
+    public int getRunwaySize() {
+        return runwaySize;
+    }
+
+    public float getDefaultBoundaryRadius() {
+        return defaultBoundaryRadius;
+    }
+
     public boolean isWithinBoundary(Geo.Coords coords) {
         switch (boundaryType) {
             case Circles:
@@ -38,7 +50,22 @@ public class Airport {
     }
 
     private boolean checkDefaultBoundary(Geo.Coords coords) {
-        return Geo.distance(this.coords, coords) <= 2.5;
+        return Geo.distance(this.coords, coords) <= defaultBoundaryRadius;
+    }
+
+    private static float calcDefaultBoundaryRadius(int runwaySize) {
+        final int lowestRunwaySize = 1000;
+        final float lowestRadius = 0.5f;
+        final int highestRunwaySize = 9000;
+        final float highestRadius = 2.0f;
+
+        if (runwaySize < lowestRunwaySize) {
+            return lowestRadius;
+        } else if (runwaySize > highestRunwaySize) {
+            return highestRadius;
+        }
+
+        return (highestRadius - lowestRadius) * (runwaySize - lowestRunwaySize) / (highestRunwaySize - lowestRunwaySize) + lowestRadius;
     }
 
     private boolean checkCirclesBoundary(Geo.Coords coords) {
@@ -108,6 +135,12 @@ public class Airport {
 
         public Builder withElevation(final int elevation) {
             delegate.elevation = elevation;
+            return this;
+        }
+
+        public Builder withRunwaySize(final int runwaySize) {
+            delegate.runwaySize = runwaySize;
+            delegate.defaultBoundaryRadius = calcDefaultBoundaryRadius(runwaySize);
             return this;
         }
 

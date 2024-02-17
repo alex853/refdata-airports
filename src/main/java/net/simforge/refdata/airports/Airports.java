@@ -19,6 +19,10 @@ public class Airports {
         putToGridLL9(airport);
     }
 
+    public Collection<Airport> getAllAirports() {
+        return Collections.unmodifiableCollection(airports);
+    }
+
     public Airport getByIcao(String icao) {
         for (Airport airport : airports) {
             if (airport.getIcao().equals(icao)) {
