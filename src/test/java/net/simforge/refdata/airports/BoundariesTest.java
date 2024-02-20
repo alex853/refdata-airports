@@ -4,6 +4,7 @@ import net.simforge.commons.misc.Geo;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -32,8 +33,8 @@ public class BoundariesTest {
     @Test
     public void testRJAAfromLoader() throws IOException {
         final Airports airports = AirportsLoader.load();
-        final Airport rjaa = airports.getByIcao("RJAA");
-        assertNotNull(rjaa);
-        assertTrue(rjaa.isWithinBoundary(NORTHMOST_POINT));
+        final Optional<Airport> rjaa = airports.findByIcao("RJAA");
+        assertTrue(rjaa.isPresent());
+        assertTrue(rjaa.get().isWithinBoundary(NORTHMOST_POINT));
     }
 }

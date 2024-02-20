@@ -23,28 +23,29 @@ public class Airports {
         return Collections.unmodifiableCollection(airports);
     }
 
-    public Airport getByIcao(String icao) {
-        for (Airport airport : airports) {
+    public Optional<Airport> findByIcao(final String icao) {
+        for (final Airport airport : airports) {
             if (airport.getIcao().equals(icao)) {
-                return airport;
+                return Optional.of(airport);
             }
         }
-        return null;
+        return Optional.empty();
     }
 
-    public Airport findNearest(Geo.Coords coords) {
+    @Deprecated
+    public Airport getByIcao(final String icao) {
+        return findByIcao(icao).orElse(null);
+    }
+
+    public Airport findNearest(final Geo.Coords coords) {
         return findNearest(coords, DistanceType.GeoDistance);
     }
 
-    public Airport findNearest(Geo.Coords coords, DistanceType distanceType) {
-        double lat = coords.getLat();
-        double lon = coords.getLon();
+    public Airport findNearest(final Geo.Coords coords, DistanceType distanceType) {
+        final int latIndex = getLatIndex(coords.getLat());
+        final int lonIndex = getLonIndex(coords.getLon());
 
-        int latIndex = getLatIndex(lat);
-        int lonIndex = getLonIndex(lon);
-
-        //noinspection unchecked
-        List<Airport> airports = gridLL9[lonIndex][latIndex];
+        final List<Airport> airports = gridLL9[lonIndex][latIndex];
 
         if (airports == null)
             return null;
@@ -52,14 +53,11 @@ public class Airports {
             return findNearest(coords, airports, distanceType);
     }
 
-    public Airport findWithinBoundary(Geo.Coords coords) {
-        double lat = coords.getLat();
-        double lon = coords.getLon();
+    public Airport findWithinBoundary(final Geo.Coords coords) {
+        final int latIndex = getLatIndex(coords.getLat());
+        final int lonIndex = getLonIndex(coords.getLon());
 
-        int latIndex = getLatIndex(lat);
-        int lonIndex = getLonIndex(lon);
-
-        List<Airport> airports = gridLL9[lonIndex][latIndex];
+        final List<Airport> airports = gridLL9[lonIndex][latIndex];
 
         if (airports == null)
             return null;
@@ -67,45 +65,37 @@ public class Airports {
             return findWithinBoundary(coords, airports);
     }
 
-    public List<Airport> findAllWithinRadius(Geo.Coords coords, double radius) {
+    public List<Airport> findAllWithinRadius(final Geo.Coords coords, final double radius) {
         return airports.stream()
                 .filter(airport -> Geo.distance(coords, airport.getCoords()) < radius)
                 .collect(Collectors.toList());
     }
 
-    private Airport findNearest(Geo.Coords coords, Collection<Airport> airports, DistanceType distanceType) {
+    private Airport findNearest(final Geo.Coords coords, final Collection<Airport> airports, final DistanceType distanceType) {
         double minDistance = Double.MAX_VALUE;
         Airport minDistanceAirport = null;
 
-        for (Airport airport : airports) {
-            double distance = Util.distance(coords, airport.getCoords(), distanceType);
+        for (final Airport airport : airports) {
+            final double distance = Util.distance(coords, airport.getCoords(), distanceType);
             if (distance < minDistance) {
                 minDistance = distance;
                 minDistanceAirport = airport;
             }
         }
 
-        if (minDistanceAirport != null)
-            return minDistanceAirport;
-        else
-            return null;
+        return minDistanceAirport;
     }
 
-    private Airport findWithinBoundary(Geo.Coords coords, List<Airport> airports) {
-        for (Airport airport : airports) {
-            if (airport.isWithinBoundary(coords)) {
-                return airport;
-            }
-        }
-        return null;
+    private Airport findWithinBoundary(final Geo.Coords coords, final List<Airport> airports) {
+        return airports.stream().filter(airport -> airport.isWithinBoundary(coords)).findFirst().orElse(null);
     }
 
-    private void putToGridLL9(Airport airport) {
-        double lat = airport.getCoords().getLat();
-        double lon = airport.getCoords().getLon();
+    private void putToGridLL9(final Airport airport) {
+        final double lat = airport.getCoords().getLat();
+        final double lon = airport.getCoords().getLon();
 
         for (int latI = -1; latI <= 1; latI++) {
-            double latC = lat + latI;
+            final double latC = lat + latI;
 
             if (latC < -90 || latC >= 90)
                 continue;
@@ -124,9 +114,9 @@ public class Airports {
         }
     }
 
-    private void putToGridLL(double lat, double lon, List<Airport>[][] gridLL, Airport airport) {
-        int latIndex = getLatIndex(lat);
-        int lonIndex = getLonIndex(lon);
+    private void putToGridLL(final double lat, final double lon, final List<Airport>[][] gridLL, final Airport airport) {
+        final int latIndex = getLatIndex(lat);
+        final int lonIndex = getLonIndex(lon);
 
         List<Airport> airportsLL = gridLL[lonIndex][latIndex];
         if (airportsLL == null) {
@@ -137,13 +127,13 @@ public class Airports {
         airportsLL.add(airport);
     }
 
-    private int getLatIndex(double lat) {
+    private int getLatIndex(final double lat) {
         int latIndex = (int) (lat + 90);
         latIndex = latIndex % 180;
         return latIndex;
     }
 
-    private int getLonIndex(double lon) {
+    private int getLonIndex(final double lon) {
         int lonIndex = (int) (lon + 180);
         lonIndex = lonIndex % 360;
         return lonIndex;

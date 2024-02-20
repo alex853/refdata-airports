@@ -11,7 +11,7 @@ public class EHAMBoundariesTest {
     @Test
     public void test() throws IOException {
         Airports airports = AirportsLoader.load();
-        Airport eham = airports.getByIcao("EHAM");
+        Airport eham = airports.findByIcao("EHAM").get();
         assertNotNull(eham);
         assertTrue(eham.isWithinBoundary(Geo.coords(52.288625, 4.777120))); // ~36R
         assertTrue(eham.isWithinBoundary(Geo.coords(52.287961, 4.734172))); // ~06
