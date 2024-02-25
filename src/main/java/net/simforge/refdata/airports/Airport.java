@@ -38,6 +38,14 @@ public class Airport {
         return defaultBoundaryRadius;
     }
 
+    public BoundaryType getBoundaryType() {
+        return boundaryType;
+    }
+
+    public String getBoundaryData() {
+        return boundaryData;
+    }
+
     public boolean isWithinBoundary(Geo.Coords coords) {
         switch (boundaryType) {
             case Circles:
