@@ -151,4 +151,8 @@ public class Airports {
         }
         return airportsInstance;
     }
+
+    public static synchronized void reset() {
+        airportsInstance = null;
+    }
 }

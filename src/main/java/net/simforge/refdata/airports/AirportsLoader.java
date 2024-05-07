@@ -3,6 +3,7 @@ package net.simforge.refdata.airports;
 import net.simforge.commons.io.Csv;
 import net.simforge.commons.io.IOHelper;
 import net.simforge.commons.misc.Geo;
+import net.simforge.refdata.airports.boundary.Boundary;
 import net.simforge.refdata.airports.fse.FSEAirport;
 import net.simforge.refdata.airports.fse.FSEAirports;
 import net.simforge.refdata.airports.pai.PAIAirport;
@@ -11,7 +12,6 @@ import net.simforge.refdata.airports.pai.PAIAirportsLoader;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringReader;
 import java.util.*;
 
 class AirportsLoader {
@@ -42,26 +42,19 @@ class AirportsLoader {
 
             fseAirport.ifPresent(airport -> builder.withRunwaySize(airport.getSize()));
 
-            loadResource("/boundaries/%s.properties".replace("%s", paiAirport.getIcao())).ifPresent(content -> {
-                final Properties properties = loadProperties(content);
+            final Optional<Boundary> boundary = AirportsStorage.loadBoundary(paiAirport.getIcao());
 
-                builder.withBoundaryType(BoundaryType.valueOf(properties.getProperty("type")))
-                        .withBoundaryData(properties.getProperty("data"));
-            });
+            if (boundary.isPresent()) {
+                builder.withBoundary(boundary.get());
+            } else {
+                loadResource("/boundaries/%s.properties".replace("%s", paiAirport.getIcao()))
+                        .ifPresent(content -> builder.withBoundary(AirportsStorage.loadBoundaryFromProperties(content)));
+            }
 
             airports.addAirport(builder.build());
         }
 
         return airports;
-    }
-
-    private static Properties loadProperties(String content) {
-        final Properties properties = new Properties();
-        try {
-            properties.load(new StringReader(content));
-        } catch (IOException ignored) {
-        }
-        return properties;
     }
 
     private static Set<String> loadDeletedIcaos() {

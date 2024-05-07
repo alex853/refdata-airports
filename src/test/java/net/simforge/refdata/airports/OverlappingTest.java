@@ -2,6 +2,7 @@ package net.simforge.refdata.airports;
 
 import net.simforge.commons.io.IOHelper;
 import net.simforge.commons.misc.Geo;
+import net.simforge.refdata.airports.boundary.DefaultBoundary;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -29,7 +30,9 @@ public class OverlappingTest {
         airports.getAllAirports().forEach(airport -> {
             final List<Airport> foundWithinRadius = airports.findAllWithinRadius(airport.getCoords(), 10);
             final List<Airport> overlappings = foundWithinRadius.stream()
-                    .filter(each -> Geo.distance(airport.getCoords(), each.getCoords()) < airport.getDefaultBoundaryRadius() + each.getDefaultBoundaryRadius())
+                    .filter(each -> Geo.distance(airport.getCoords(), each.getCoords())
+                            < DefaultBoundary.calcDefaultBoundaryRadius(airport.getRunwaySize())
+                            + DefaultBoundary.calcDefaultBoundaryRadius(each.getRunwaySize()))
                     .collect(Collectors.toList());
 
             if (overlappings.size() == 1) {

@@ -1,6 +1,9 @@
 package net.simforge.refdata.airports;
 
 import net.simforge.commons.misc.Geo;
+import net.simforge.refdata.airports.boundary.Boundary;
+import net.simforge.refdata.airports.boundary.BoundaryType;
+import net.simforge.refdata.airports.boundary.CirclesBoundary;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -22,8 +25,7 @@ public class BoundariesTest {
         final Airport rjaaWithCirclesType = Airport.builder()
                 .withIcao("RJAA")
                 .withCoords(Geo.coords(35.746833, 140.385167))
-                .withBoundaryType(BoundaryType.Circles)
-                .withBoundaryData("35.775667,140.384253,2.5")
+                .withBoundary(CirclesBoundary.fromProperties("35.775667,140.384253,2.5"))
                 .build();
 
         assertFalse(rjaaWithDefaultType.isWithinBoundary(NORTHMOST_POINT));

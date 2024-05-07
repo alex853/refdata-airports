@@ -1,4 +1,4 @@
-package net.simforge.refdata.airports;
+package net.simforge.refdata.airports.boundary;
 
 public enum BoundaryType {
     Default,
