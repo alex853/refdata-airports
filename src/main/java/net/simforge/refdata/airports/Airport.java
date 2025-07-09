@@ -6,6 +6,8 @@ import net.simforge.refdata.airports.boundary.DefaultBoundary;
 
 public class Airport {
     private String icao;
+    private String iata;
+    private String name;
     private Geo.Coords coords;
     private int elevation;
 
@@ -16,6 +18,14 @@ public class Airport {
 
     public String getIcao() {
         return icao;
+    }
+
+    public String getIata() {
+        return iata;
+    }
+
+    public String getName() {
+        return name;
     }
 
     public Geo.Coords getCoords() {
@@ -49,6 +59,16 @@ public class Airport {
 
         public Builder withIcao(final String icao) {
             delegate.icao = icao;
+            return this;
+        }
+
+        public Builder withIata(final String iata) {
+            delegate.iata = iata;
+            return this;
+        }
+
+        public Builder withName(final String name) {
+            delegate.name = name;
             return this;
         }
 
